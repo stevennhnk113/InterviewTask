@@ -16,14 +16,28 @@ namespace InterviewTask.Views
 	{
 		LoginViewModel viewModel;
 		StackLayout stackLayout;
+		StackLayout RotateStackLayout;
+		StackLayout UserInputStackLayout;
+
+		Image BackArrowImage;
 		Image RememberPasswordCheckbox;
 		Image UsernameInputBoxFocus;
 		Image PasswordInputBoxFocus;
+
 		CustomEntry UsernameInputBoxFocusEntry;
 		CustomEntry PasswordInputBoxFocusEntry;
 
+		Label OrLabel;
+
+		double width, height;
+
 		public LoginPage()
 		{
+			stackLayout = new StackLayout();
+			RotateStackLayout = new StackLayout();
+			RotateStackLayout.HorizontalOptions = LayoutOptions.Center;
+			UserInputStackLayout = new StackLayout();
+
 			var style = new Style(typeof(Grid))
 			{
 				Setters =
@@ -36,7 +50,6 @@ namespace InterviewTask.Views
 			Resources.Add(style);
 
 			BindingContext = this.viewModel = new LoginViewModel();
-			stackLayout = new StackLayout();
 
 			BackgroundImage = "LoginBackground.png";
 			Content = stackLayout;
@@ -45,15 +58,51 @@ namespace InterviewTask.Views
 			InitializeComponent();
 		}
 
+		protected override void OnSizeAllocated(double width, double height)
+		{
+			base.OnSizeAllocated(width, height); //must be called
+			if (width != this.width || height != this.height)
+			{
+				this.width = width;
+				this.height = height;
+				if (width > height)
+				{
+					RotateStackLayout.Orientation = StackOrientation.Horizontal;
+					BackArrowImage.HeightRequest = 20;
+					
+				}
+				else
+				{
+					RotateStackLayout.Orientation = StackOrientation.Vertical;
+					BackArrowImage.HeightRequest = 30;
+				}
+			}
+		}
+
 		void SetUpLayout()
 		{
 			SetUpBackArrow();
 			SetUpTitle();
+
+			stackLayout.Children.Add(RotateStackLayout);
+			// Rotate Stack
 			SetUpSignInIcon();
-			stackLayout.Children.Add(new Label { Text = "Or", FontSize = 12, TextColor = new Color(255, 255, 255), HorizontalTextAlignment = TextAlignment.Center });
+			OrLabel = new Label
+			{
+				Text = "Or",
+				FontSize = 12,
+				TextColor = new Color(255, 255, 255),
+				HorizontalTextAlignment = TextAlignment.Center,
+				VerticalTextAlignment = TextAlignment.Center,
+				Margin = new Thickness(15, 0, 15, 0)
+			};
+			RotateStackLayout.Children.Add(OrLabel);
+			RotateStackLayout.Children.Add(UserInputStackLayout);
 			SetUpInputBox();
 			SetUpRememberPasswordBox();
 			SetUpLoginAndRegisterButton();
+			// End of Rotate Stack
+
 			stackLayout.Children.Add(new Label
 			{
 				Text = "@2016 SapphireView Inc. All right Reserved",
@@ -67,21 +116,20 @@ namespace InterviewTask.Views
 
 		void SetUpBackArrow()
 		{
-			Image image = new Image();
-			image.Source = "BackArrow.png";
-			image.HorizontalOptions = new LayoutOptions(LayoutAlignment.Start, false);
-			image.VerticalOptions = new LayoutOptions(LayoutAlignment.Center, false);
-			image.Margin = new Thickness(10, 10, 0, 0);
-			image.HeightRequest = 30;
+			BackArrowImage = new Image();
+			BackArrowImage.Source = "BackArrow.png";
+			BackArrowImage.HorizontalOptions = new LayoutOptions(LayoutAlignment.Start, false);
+			BackArrowImage.VerticalOptions = new LayoutOptions(LayoutAlignment.Center, false);
+			BackArrowImage.Margin = new Thickness(10, 10, 0, 0);
 
 			var tapGestureRecognizer = new TapGestureRecognizer();
 			tapGestureRecognizer.Tapped += (s, e) =>
 			{
 				Exit();
 			};
-			image.GestureRecognizers.Add(tapGestureRecognizer);
+			BackArrowImage.GestureRecognizers.Add(tapGestureRecognizer);
 
-			stackLayout.Children.Add(image);
+			stackLayout.Children.Add(BackArrowImage);
 		}
 
 		void SetUpTitle()
@@ -119,6 +167,8 @@ namespace InterviewTask.Views
 			grid.Resources = new ResourceDictionary();
 			grid.Resources.Add(style);
 
+			grid.VerticalOptions = LayoutOptions.Center;
+
 			grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 			grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 			grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(45) });
@@ -145,7 +195,7 @@ namespace InterviewTask.Views
 				image.GestureRecognizers.Add(tapGestureRecognizer);
 			}
 
-			stackLayout.Children.Add(grid);
+			RotateStackLayout.Children.Add(grid);
 		}
 
 		void SetUpInputBox()
@@ -199,7 +249,7 @@ namespace InterviewTask.Views
 			PasswordInputBoxFocusEntry.Unfocused += ChangePasswordInputBoxFocus;
 			grid.Children.Add(PasswordInputBoxFocusEntry, 0, 1);
 
-			stackLayout.Children.Add(grid);
+			UserInputStackLayout.Children.Add(grid);
 		}
 
 		void SetUpRememberPasswordBox()
@@ -239,8 +289,7 @@ namespace InterviewTask.Views
 				TextColor = Color.White
 			}, 1, 0);
 
-			stackLayout.Children.Add(grid);
-
+			UserInputStackLayout.Children.Add(grid);
 		}
 
 		void SetUpLoginAndRegisterButton()
@@ -299,8 +348,7 @@ namespace InterviewTask.Views
 			grid.Children.Add(new Image { Source = "RedBTN.png" }, 0, 2);
 			grid.Children.Add(new Label { Text = "Register" }, 0, 2);
 
-			stackLayout.Children.Add(grid);
-
+			UserInputStackLayout.Children.Add(grid);
 		}
 
 		private void LogUserIn(object sender, EventArgs e)
